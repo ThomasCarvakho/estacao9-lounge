@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estação 9 Lounge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background-color: #1e1e1e;
+      color: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: #2c2c2c;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      border-bottom: 2px solid #444;
+    }
+    #chat {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    .message {
+      margin: 0.5rem 0;
+    }
+    .username {
+      color: #ff6b81;
+      font-weight: bold;
+    }
+    #form {
+      display: flex;
+      padding: 1rem;
+      background: #2c2c2c;
+      border-top: 2px solid #444;
+    }
+    #input {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 5px;
+      margin-right: 1rem;
+      background: #3a3a3a;
+      color: #f2f2f2;
+    }
+    #send {
+      padding: 0.75rem 1.5rem;
+      background: #ff6b81;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #usernameModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #usernameModalContent {
+      background: #2c2c2c;
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    #usernameInput {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      background: #3a3a3a;
+      color: white;
+    }
+    #enterBtn {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: #ff6b81;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>Estação 9 Lounge ☕</header>
+  <div id="chat"></div>
+  <form id="form">
+    <input id="input" autocomplete="off" placeholder="Type your message..." />
+    <button id="send">Send</button>
+  </form>
+
+  <div id="usernameModal">
+    <div id="usernameModalContent">
+      <h2>Welcome to Estação 9 Lounge</h2>
+      <input id="usernameInput" placeholder="Enter your nickname" />
+      <button id="enterBtn">Enter</button>
+    </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+    const usernameModal = document.getElementById('usernameModal');
+    const usernameInput = document.getElementById('usernameInput');
+    const enterBtn = document.getElementById('enterBtn');
+
+    let username = '';
+    const socket = new WebSocket('wss://echo.websocket.org'); // For testing only. Replace with your server later.
+
+    enterBtn.onclick = () => {
+      if (usernameInput.value.trim()) {
+        username = usernameInput.value.trim();
+        usernameModal.style.display = 'none';
+      }
+    };
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (input.value && username) {
+        const message = `${username}: ${input.value}`;
+        socket.send(message);
+        input.value = '';
+      }
+    });
+
+    socket.addEventListener('message', function (event) {
+      const msg = document.createElement('div');
+      msg.className = 'message';
+      const parts = event.data.split(':');
+      msg.innerHTML = `<span class="username">${parts[0]}</span>: ${parts.slice(1).join(':')}`;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    });
+  </script>
+</body>
+</html>
